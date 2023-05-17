@@ -6,11 +6,11 @@ import matplotlib.animation as animation
 from matplotlib import style
 
 H = 0.5  # m
-D = 1
+D = 0.242
 DT = 0.1  # s
 SIZE = 10
 X, Y, Z = 0, 1, 2
-SIM_TIME = 10000
+SIM_TIME = 10
 
 #
 # def dist(loc1, loc2):
@@ -49,7 +49,8 @@ def euler(grid):
 
 def generate_grid(size):
     grid = np.zeros([int(size // H), int(size // H), int(size // H)])
-    grid[(int(size // H // 2), int(size // H // 2), int(size // H // 2))] = 10
+    grid[(0, int(size // H // 2), int(size // H // 2))] = 1
+    grid[(int(size // H)-1, int(size // H // 2), int(size // H // 2))] = 1
     return grid
 
 
@@ -65,14 +66,14 @@ def main():
     style.use('fivethirtyeight')
     ax = fig.add_subplot(1, 1, 1, projection='3d')
 
-    while t < 10:
+    while t < SIM_TIME:
         grid_arc.append(grid)
         t_arc.append(t)
         t += DT
         grid = euler(grid)
 
     def animate(i):
-        if i >= SIM_TIME:
+        if i >= SIM_TIME/DT:
             ani.pause()
             return
         xs = []
@@ -88,7 +89,6 @@ def main():
                     cs.append(grid_arc[i][(x, y, z)])
 
         ax.clear()
-        print()
         ax.scatter(xs, ys, zs, s=np.array(cs) * 100)
 
     ani = animation.FuncAnimation(fig, animate, interval=DT)
