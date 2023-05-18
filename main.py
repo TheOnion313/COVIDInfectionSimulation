@@ -12,7 +12,7 @@ D = 0.1
 DT = 0.1  # s
 SIZE = 10
 X, Y, Z = 0, 1, 2
-SIM_TIME = 3600
+SIM_TIME = 1200
 
 body_cusp = ((-0.5, 0.5), (-3.2, -2), (-2, 2))  # y coordinate of body parrallel to yz
 
@@ -172,6 +172,7 @@ def main():
     mouth_arc = []
 
     while t < SIM_TIME:
+        print("\r%f.3 %c [%s%s]" % (t / SIM_TIME * 100, '%', '=' * int(t / SIM_TIME * 20), ' ' * (20 - int(t / SIM_TIME * 20))), end='')
         grid_arc.append(grid)
         t_arc.append(t)
         nostril_left_arc.append(grid[tuple([loc_to_index(c) for c in person_nostril_left])])
