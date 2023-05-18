@@ -12,9 +12,13 @@ D = 0.1
 DT = 0.1  # s
 SIZE = 10
 X, Y, Z = 0, 1, 2
-SIM_TIME = 10
+SIM_TIME = 3600
 
 body_cusp = ((-0.5, 0.5), (-3.2, -2), (-2, 2))  # y coordinate of body parrallel to yz
+
+person_nostril_right = (0.1, 2, 1)
+person_nostril_left = (-0.1, 2, 1)
+person_mouth = (0, 2, 0.5)
 
 
 def dist(loc1, loc2):
@@ -44,6 +48,14 @@ def on_cusp(loc) -> (int, int):
                 m = abs(loc[coord] - body_cusp[coord][dir])
 
     return min_coord, min_dir
+
+
+def draw_face(ax):
+    x = [person_nostril_left[X], person_nostril_right[X], person_mouth[X]]
+    y = [person_nostril_left[Y], person_nostril_right[Y], person_mouth[Y]]
+    z = [person_nostril_left[Z], person_nostril_right[Z], person_mouth[Z]]
+
+    ax.scatter(x, y, z, color="green")
 
 
 def draw_body(ax):
@@ -112,7 +124,6 @@ def dfdz2(grid: np.ndarray, loc: (int, int)):
         pass
 
 
-
 def index_to_loc(index):
     return np.array(index) * H + (-SIZE / 2)
 
@@ -156,10 +167,16 @@ def main():
     style.use('fivethirtyeight')
     ax = fig.add_subplot(1, 1, 1, projection='3d')
 
+    nostril_right_arc = []
+    nostril_left_arc = []
+    mouth_arc = []
+
     while t < SIM_TIME:
-        print(f'\r{sum([sum([sum(y) for y in x]) for x in grid])}', end='')
         grid_arc.append(grid)
         t_arc.append(t)
+        nostril_left_arc.append(grid[tuple([loc_to_index(c) for c in person_nostril_left])])
+        nostril_right_arc.append(grid[tuple([loc_to_index(c) for c in person_nostril_right])])
+        mouth_arc.append(grid[tuple([loc_to_index(c) for c in person_mouth])])
         t += DT
         grid = euler(grid)
         # update_cusp(grid)
@@ -183,9 +200,21 @@ def main():
         ax.clear()
         ax.scatter(xs, ys, zs, s=np.array(cs) * 100)
         draw_body(ax)
+        draw_face(ax)
 
-    ani = animation.FuncAnimation(fig, animate, interval=DT)
+    # ani = animation.FuncAnimation(fig, animate, interval=DT)
 
+    # plt.show()
+
+    fig, plots = plt.subplots(2, 2)
+    fig.tight_layout(pad=1.0)
+
+    plots[0][0].scatter(t_arc, nostril_left_arc)
+    plots[0][0].legend(["left_nostril"])
+    plots[0][1].scatter(t_arc, nostril_right_arc)
+    plots[0][1].legend(["right_nostril"])
+    plots[1][0].scatter(t_arc, mouth_arc)
+    plots[1][0].legend(["mouth"])
     plt.show()
 
 
