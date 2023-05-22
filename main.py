@@ -3,7 +3,7 @@ from math import sqrt
 import numpy as np
 import matplotlib
 
-matplotlib.use('Agg')
+# matplotlib.use('Agg')
 from matplotlib import pyplot as plt
 import matplotlib.animation as animation
 from matplotlib import style
@@ -11,14 +11,14 @@ from mpl_toolkits.mplot3d.art3d import Poly3DCollection
 from matplotlib.animation import FFMpegWriter
 
 H = 0.5  # m
-D = 0.1
+D = 0.5
 DT = 0.1  # s
 SIZE = 10
 X, Y, Z = 0, 1, 2
 SIM_TIME = 30
 BOX_X_LENGTH, BOX_Y_LENGTH, BOX_Z_LENGTH = 1.5, 2, 5
 BOX_X, BOX_Y, BOX_Z = -5, -BOX_Y_LENGTH / 2, 0
-
+STARTING_SELIVA_INDEX = (4, int(SIZE // H // 2), int(SIZE // H // 2))
 
 def dfdx2(grid: np.ndarray, loc: (int, int)):
     loc_1 = (min(len(grid) - 1, loc[X] + 2), loc[Y], loc[Z])
@@ -102,7 +102,7 @@ def euler(grid):
 
 def generate_grid(size):
     grid = np.zeros([int(size // H), int(size // H), int(size // H)])
-    grid[(4, int(size // H // 2), int(size // H // 2))] = 1
+    grid[STARTING_SELIVA_INDEX] = 1
     # grid[(int(size // H)-1, int(size // H // 2), int(size // H // 2))] = 1
     return grid
 
@@ -114,8 +114,11 @@ def main():
     grid_arc = []
     t_arc = []
     t = 0
+    index = 0
     style.use('fivethirtyeight')
     while t < SIM_TIME:
+        if index%10 == 0:
+            grid[STARTING_SELIVA_INDEX] = 1
         grid_arc.append(grid)
         t_arc.append(t)
         t += DT
@@ -155,10 +158,10 @@ def main():
         ax.set_zlabel('Z Label')
 
     ani = animation.FuncAnimation(fig, animate, interval=DT*1000)
-    output_file = 'animation.mp4'
-    writer = FFMpegWriter(fps=30)
-    ani.save(output_file, writer=writer)
-    # plt.show()
+    # output_file = 'animation.mp4'
+    # writer = FFMpegWriter(fps=30)
+    # ani.save(output_file, writer=writer)
+    plt.show()
 
 if __name__ == '__main__':
     main()
