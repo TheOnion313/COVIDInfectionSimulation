@@ -7,12 +7,12 @@ import matplotlib.animation as animation
 from matplotlib import style
 from numpy import sort
 
-H = 0.1  # m
-D = 0.02
+H = 0.5  # m
+D = 0.2
 DT = 0.1  # s
 SIZE = 3
 X, Y, Z = 0, 1, 2
-SIM_TIME = 600
+SIM_TIME = 60
 
 body_cusp = ((-0.5, 0.5), (-1, -0.5), (-1.5, 1.5))  # y coordinate of body parrallel to yz
 body2 = ((-0.5, 0.5), (0.5, 1), (-1.5, 1.5))
@@ -156,14 +156,7 @@ def f(grid):
     ret[loc_to_index(body_cusp[0][0]):loc_to_index(body_cusp[0][1]), loc_to_index(body_cusp[1][0]):loc_to_index(body_cusp[1][1]), loc_to_index(body_cusp[2][0]):loc_to_index(body_cusp[2][1])] = \
         -grid[loc_to_index(body_cusp[0][0]):loc_to_index(body_cusp[0][1]), loc_to_index(body_cusp[1][0]):loc_to_index(body_cusp[1][1]), loc_to_index(body_cusp[2][0]):loc_to_index(body_cusp[2][1])] / DT
     ret[loc_to_index(body2[0][0]):loc_to_index(body2[0][1]), loc_to_index(body2[1][0]):loc_to_index(body2[1][1]), loc_to_index(body2[2][0]):loc_to_index(body2[2][1])] = \
-        -grid[loc_to_index(body_cusp[0][0]):loc_to_index(body_cusp[0][1]), loc_to_index(body_cusp[1][0]):loc_to_index(body_cusp[1][1]),
-         loc_to_index(body_cusp[2][0]):loc_to_index(body_cusp[2][1])] / DT
-
-    ret[loc_to_index(body2[0][0]):loc_to_index(body2[0][1]), loc_to_index(body2[1][0]):loc_to_index(body2[1][1]), loc_to_index(body2[2][0]):loc_to_index(body2[2][1])] = \
         -grid[loc_to_index(body2[0][0]):loc_to_index(body2[0][1]), loc_to_index(body2[1][0]):loc_to_index(body2[1][1]), loc_to_index(body2[2][0]):loc_to_index(body2[2][1])] / DT
-    ret[loc_to_index(body2[0][0]):loc_to_index(body2[0][1]), loc_to_index(body2[1][0]):loc_to_index(body2[1][1]), loc_to_index(body2[2][0]):loc_to_index(body2[2][1])] = \
-        -grid[loc_to_index(body2[0][0]):loc_to_index(body2[0][1]), loc_to_index(body2[1][0]):loc_to_index(body2[1][1]),
-         loc_to_index(body2[2][0]):loc_to_index(body2[2][1])] / DT
 
     return ret
 
@@ -197,7 +190,7 @@ def main():
     mouth_arc = []
 
     while t < SIM_TIME:
-        print("\r%f.3 %c [%s%s]" % (t / SIM_TIME * 100, '%', '=' * int(t / SIM_TIME * 20), ' ' * (20 - int(t / SIM_TIME * 20))), end='')
+        # print("\r%f.3 %c [%s%s]" % (t / SIM_TIME * 100, '%', '=' * int(t / SIM_TIME * 20), ' ' * (20 - int(t / SIM_TIME * 20))), end='')
         grid_arc.append(grid)
         t_arc.append(t)
         nostril_left_arc.append(grid[tuple([loc_to_index(c) for c in person_nostril_left])])
@@ -232,7 +225,7 @@ def main():
     print(nostril_right_arc)
     print(mouth_arc)
 
-    ani = animation.FuncAnimation(fig, animate, interval=DT)
+    ani = animation.FuncAnimation(fig, animate, interval=DT * 1000)
 
     plt.show()
 
