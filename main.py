@@ -15,7 +15,7 @@ D = 0.5
 DT = 0.1  # s
 SIZE = 10
 X, Y, Z = 0, 1, 2
-SIM_TIME = 30
+SIM_TIME = 60
 BOX_X_LENGTH, BOX_Y_LENGTH, BOX_Z_LENGTH = 1.5, 2, 5
 BOX_X, BOX_Y, BOX_Z = -5, -BOX_Y_LENGTH / 2, 0
 STARTING_SELIVA_INDEX = (4, int(SIZE // H // 2), int(SIZE // H // 2))
@@ -25,18 +25,15 @@ def dfdx2(grid: np.ndarray, loc: (int, int)):
     loc_2 = (max(0, loc[X] - 2), loc[Y], loc[Z])
     return (grid[loc_1] - 2 * grid[loc] + grid[loc_2]) / (4 * H ** 2)
 
-
 def dfdy2(grid: np.ndarray, loc: (int, int)):
     loc_1 = (loc[X], min(len(grid[0]) - 1, loc[Y] + 2), loc[Z])
     loc_2 = (loc[X], max(0, loc[Y] - 2), loc[Z])
     return (grid[loc_1] - 2 * grid[loc] + grid[loc_2]) / (4 * H ** 2)
 
-
 def dfdz2(grid: np.ndarray, loc: (int, int)):
     loc_1 = (loc[X], loc[Y], min(len(grid[0][0]) - 1, loc[Z] + 2))
     loc_2 = (loc[X], loc[Y], max(0, loc[Z] - 2))
     return (grid[loc_1] - 2 * grid[loc] + grid[loc_2]) / (4 * H ** 2)
-
 
 def plot_box(x, y, z, x_length, y_length, z_length, ax, color):
     x_bottom_array = [x, x, x + x_length, x + x_length]
@@ -88,24 +85,20 @@ def plot_box(x, y, z, x_length, y_length, z_length, ax, color):
     ax.add_collection3d(poly_side3)
     ax.add_collection3d(poly_side4)
 
-
 def f(grid):
     return D * np.array([[[dfdx2(grid, (x, y, z)) + dfdy2(grid,
                                                           (x, y, z)) + dfdz2(
         grid, (x, y, z)) for z in range(len(grid[0][0]))] for y in
                           range(len(grid[0]))] for x in range(len(grid))])
 
-
 def euler(grid):
     return grid + f(grid) * DT
-
 
 def generate_grid(size):
     grid = np.zeros([int(size // H), int(size // H), int(size // H)])
     grid[STARTING_SELIVA_INDEX] = 1
     # grid[(int(size // H)-1, int(size // H // 2), int(size // H // 2))] = 1
     return grid
-
 
 def main():
     fig = plt.figure()
@@ -117,13 +110,15 @@ def main():
     index = 0
     style.use('fivethirtyeight')
     while t < SIM_TIME:
-        if index%10 == 0:
+        if index%100 == 0:
             grid[STARTING_SELIVA_INDEX] = 1
         grid_arc.append(grid)
         t_arc.append(t)
         t += DT
         grid = euler(grid)
-
+    cs = []
+    for i in range(int(SIM_TIME / DT)):
+        cs.append(grid_arc[i][STARTING_SELIVA_INDEX])
     def animate(i):
         if i >= SIM_TIME / DT:
             ani.pause()
@@ -157,11 +152,13 @@ def main():
         ax.set_ylabel('Y Label')
         ax.set_zlabel('Z Label')
 
+
     ani = animation.FuncAnimation(fig, animate, interval=DT*1000)
     # output_file = 'animation.mp4'
     # writer = FFMpegWriter(fps=30)
     # ani.save(output_file, writer=writer)
     plt.show()
+
 
 if __name__ == '__main__':
     main()
