@@ -7,18 +7,20 @@ import matplotlib.animation as animation
 from matplotlib import style
 from numpy import sort
 
-H = 0.5  # m
-D = 0.1
+H = 0.1  # m
+D = 0.02
 DT = 0.1  # s
-SIZE = 10
+SIZE = 3
 X, Y, Z = 0, 1, 2
-SIM_TIME = 1200
+SIM_TIME = 600
 
-body_cusp = ((-0.5, 0.5), (-3.2, -2), (-2, 2))  # y coordinate of body parrallel to yz
+body_cusp = ((-0.5, 0.5), (-1, -0.5), (-1.5, 1.5))  # y coordinate of body parrallel to yz
+body2 = ((-0.5, 0.5), (0.5, 1), (-1.5, 1.5))
+spread_loc = (0, -0.4, 0)
 
-person_nostril_right = (0.1, 2, 1)
-person_nostril_left = (-0.1, 2, 1)
-person_mouth = (0, 2, 0.5)
+person_nostril_right = (0.1, 0.4, 0.1)
+person_nostril_left = (-0.1, 0.4, 0.1)
+person_mouth = (0, 0.4, 0)
 
 
 def dist(loc1, loc2):
@@ -63,6 +65,10 @@ def draw_body(ax):
     ys = []
     zs = []
     d = (xs, ys, zs)
+    xs2 = []
+    ys2 = []
+    zs2 = []
+    d2 = (xs2, ys2, zs2)
     for c in range(3):
         if c == 2:
             continue
@@ -74,7 +80,16 @@ def draw_body(ax):
                 d[(c + 1) % 3].append(c1)
                 d[(c + 2) % 3].append(c2)
                 d[(c + 2) % 3].append(c2)
+        for c1 in np.linspace(body2[(c + 1) % 3][0], body2[(c + 1) % 3][1], int((body2[(c + 1) % 3][1] - body2[(c + 1) % 3][0]) // (H / 1.5))):
+            for c2 in np.linspace(body2[(c + 2) % 3][0], body2[(c + 2) % 3][1], int((body2[(c + 2) % 3][1] - body2[(c + 2) % 3][0]) // (H / 1.5))):
+                d2[c].append(body2[c][0])
+                d2[c].append(body2[c][1])
+                d2[(c + 1) % 3].append(c1)
+                d2[(c + 1) % 3].append(c1)
+                d2[(c + 2) % 3].append(c2)
+                d2[(c + 2) % 3].append(c2)
     ax.scatter(xs, ys, zs, color="red")
+    ax.scatter(xs2, ys2, zs2, color="cyan")
 
 
 def get_bank(body_cusp, loc):
@@ -132,14 +147,23 @@ def loc_to_index(loc):
     return int((loc + SIZE / 2) // H)
 
 
+def loc3_to_index(loc):
+    return [loc_to_index(i) for i in loc]
+
+
 def f(grid):
     ret = D * np.array([[[dfdx2(grid, (x, y, z)) + dfdy2(grid, (x, y, z)) + dfdz2(grid, (x, y, z)) for z in range(len(grid[0][0]))] for y in range(len(grid[0]))] for x in range(len(grid))])
-    for x in range(loc_to_index(body_cusp[0][0]), loc_to_index(body_cusp[0][1])):
-        for y in range(loc_to_index(body_cusp[1][0]), loc_to_index(body_cusp[1][1])):
-            for z in range(loc_to_index(body_cusp[2][0]), loc_to_index(body_cusp[2][1])):
-                min_loc = get_bank(body_cusp, [x, y, z])
-                # ret[min_loc] += ret[x, y, z] + grid[x, y, z] / DT
-                ret[x, y, z] = -grid[x, y, z] / DT
+    ret[loc_to_index(body_cusp[0][0]):loc_to_index(body_cusp[0][1]), loc_to_index(body_cusp[1][0]):loc_to_index(body_cusp[1][1]), loc_to_index(body_cusp[2][0]):loc_to_index(body_cusp[2][1])] = \
+        -grid[loc_to_index(body_cusp[0][0]):loc_to_index(body_cusp[0][1]), loc_to_index(body_cusp[1][0]):loc_to_index(body_cusp[1][1]), loc_to_index(body_cusp[2][0]):loc_to_index(body_cusp[2][1])] / DT
+    ret[loc_to_index(body2[0][0]):loc_to_index(body2[0][1]), loc_to_index(body2[1][0]):loc_to_index(body2[1][1]), loc_to_index(body2[2][0]):loc_to_index(body2[2][1])] = \
+        -grid[loc_to_index(body_cusp[0][0]):loc_to_index(body_cusp[0][1]), loc_to_index(body_cusp[1][0]):loc_to_index(body_cusp[1][1]),
+         loc_to_index(body_cusp[2][0]):loc_to_index(body_cusp[2][1])] / DT
+
+    ret[loc_to_index(body2[0][0]):loc_to_index(body2[0][1]), loc_to_index(body2[1][0]):loc_to_index(body2[1][1]), loc_to_index(body2[2][0]):loc_to_index(body2[2][1])] = \
+        -grid[loc_to_index(body2[0][0]):loc_to_index(body2[0][1]), loc_to_index(body2[1][0]):loc_to_index(body2[1][1]), loc_to_index(body2[2][0]):loc_to_index(body2[2][1])] / DT
+    ret[loc_to_index(body2[0][0]):loc_to_index(body2[0][1]), loc_to_index(body2[1][0]):loc_to_index(body2[1][1]), loc_to_index(body2[2][0]):loc_to_index(body2[2][1])] = \
+        -grid[loc_to_index(body2[0][0]):loc_to_index(body2[0][1]), loc_to_index(body2[1][0]):loc_to_index(body2[1][1]),
+         loc_to_index(body2[2][0]):loc_to_index(body2[2][1])] / DT
 
     return ret
 
@@ -150,7 +174,8 @@ def euler(grid):
 
 def generate_grid(size):
     grid = np.zeros([int(size // H), int(size // H), int(size // H)])
-    grid[(0, int(size // H // 2), int(size // H // 2))] = 1
+    index = loc3_to_index(spread_loc)
+    grid[index[0], index[1], index[2]] = 1
     # grid[(int(size // H) - 1, int(size // H // 2), int(size // H // 2))] = 1
     return grid
 
@@ -203,9 +228,13 @@ def main():
         draw_body(ax)
         draw_face(ax)
 
-    # ani = animation.FuncAnimation(fig, animate, interval=DT)
+    print(nostril_left_arc)
+    print(nostril_right_arc)
+    print(mouth_arc)
 
-    # plt.show()
+    ani = animation.FuncAnimation(fig, animate, interval=DT)
+
+    plt.show()
 
     fig, plots = plt.subplots(2, 2)
     fig.tight_layout(pad=1.0)
