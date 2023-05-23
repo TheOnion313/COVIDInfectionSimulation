@@ -11,7 +11,7 @@ from mpl_toolkits.mplot3d.art3d import Poly3DCollection
 
 H = 0.5# m
 D = 0.4
-DT = 1  # s
+DT = 0.1  # s
 SIZE = 3
 X, Y, Z = 0, 1, 2
 SIM_TIME = 60
@@ -22,7 +22,7 @@ spread_loc = (0, -0.4, 1)
 
 person_nostril_right = (0.1, 0.4, 1.1)
 person_nostril_left = (-0.1, 0.4, 1.1)
-person_mouth = (0, 0.4, 1)
+person_mouth = (0, 0.4, 0.5)
 
 BOX_X_LENGTH, BOX_Y_LENGTH, BOX_Z_LENGTH = 1, 0.5, 3
 BOX_X, BOX_Y, BOX_Z = -0.5, 0.5, 1.5
@@ -248,7 +248,7 @@ def main():
         nostril_right_arc.append(grid[tuple([loc_to_index(c) for c in person_nostril_right])])
         mouth_arc.append(grid[tuple([loc_to_index(c) for c in person_mouth])])
         t += DT
-        grid = rk4(grid)
+        grid = euler(grid)
         # update_cusp(grid)
         index += 1
 
@@ -266,7 +266,7 @@ def main():
                     xs.append(x * H - SIZE / 2)
                     ys.append(y * H - SIZE / 2)
                     zs.append(z * H - SIZE / 2)
-                    cs.append(grid_arc[i][(x, y, z)])
+                    cs.append(abs(grid_arc[i][(x, y, z)]))
 
         ax.clear()
         ax.scatter(xs, ys, zs, s=np.array(cs) * 100)
@@ -291,7 +291,7 @@ def main():
     ax.set_zlabel('Z Label')
     ani = animation.FuncAnimation(fig, animate, interval=DT * 1000)
 
-    # plt.show()
+    plt.show()
 
     fig, plots = plt.subplots(2, 2)
     fig.tight_layout(pad=1.0)
