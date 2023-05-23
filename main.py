@@ -9,9 +9,9 @@ from numpy import sort
 from mpl_toolkits.mplot3d.art3d import Poly3DCollection
 
 
-H = 0.5# m
+H = 0.2# m
 D = 0.4
-DT = 0.1  # s
+DT = 0.01  # s
 SIZE = 3
 X, Y, Z = 0, 1, 2
 SIM_TIME = 60
@@ -248,7 +248,7 @@ def main():
         nostril_right_arc.append(grid[tuple([loc_to_index(c) for c in person_nostril_right])])
         mouth_arc.append(grid[tuple([loc_to_index(c) for c in person_mouth])])
         t += DT
-        grid = euler(grid)
+        grid = rk4(grid)
         # update_cusp(grid)
         index += 1
 
