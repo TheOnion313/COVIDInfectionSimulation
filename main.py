@@ -11,14 +11,14 @@ from mpl_toolkits.mplot3d.art3d import Poly3DCollection
 
 H = 0.2# m
 D = 0.4
-DT = 0.01  # s
+DT = 0.05  # s
 SIZE = 3
 X, Y, Z = 0, 1, 2
 SIM_TIME = 60
 
 body_cusp = ((-0.5, 0.5), (-1, -0.5), (-1.5, 1.5))  # y coordinate of body parrallel to yz
 body2 = ((-0.5, 0.5), (0.5, 1), (-1.5, 1.5))
-spread_loc = (0, -0.4, 1)
+spread_loc = (0, -0.4, 0.5)
 
 person_nostril_right = (0.1, 0.4, 1.1)
 person_nostril_left = (-0.1, 0.4, 1.1)
